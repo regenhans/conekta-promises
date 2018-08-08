@@ -65,7 +65,7 @@ const chargeUser = function (userId) {
     conekta.Order.create(
       {
         'line_items': [{
-          'name': 'Publicación de Vacante',
+          'name': 'Your item',
           'unit_price': 10000,
           'quantity': 1
         }],
@@ -73,7 +73,7 @@ const chargeUser = function (userId) {
         'customer_info': {
           'customer_id': userId.id
         },
-        'metadata': { 'description': 'Publicación de Vacante', 'reference': '1334523452345' },
+        'metadata': { 'description': 'Item desc' },
         'charges': [{
           'payment_method': {
             'type': 'default'
@@ -82,7 +82,7 @@ const chargeUser = function (userId) {
       },
       function (err, res) {
         if (err) {
-          reject(Error (err))
+          reject(Error(err))
         } else {
           resolve(res.toObject())
         }
