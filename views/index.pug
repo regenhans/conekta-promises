@@ -2,8 +2,7 @@ html
   head
   body
     if data
-      p #{data} 
-
+      p #{data}
     #checkout
       .step1
         h1 Conekta Test
@@ -15,10 +14,9 @@ html
             span Nombre
             input(type="text", size='20' name="nombre" id="nombre")
 
-    form#card-form(action='/charge', method='POST')
+    form#card-form()
       span.card-errors
       //- div
-
       
       label
         span Nombre del tarjetahabiente
@@ -44,6 +42,7 @@ html
     script(type="text/javascript" src="https://cdn.conekta.io/js/latest/conekta.js")
     script.
         var $form = $("#card-form");
+        var $formUrl = $form.attr('action')
         var email = ''
         var nombre = ''
 
@@ -51,12 +50,25 @@ html
         
         var conektaSuccessResponseHandler = function(token) {
           //Inserta el token_id en la forma para que se envíe al servidor
-          $form.append($('<input type="hidden" name="conektaTokenId" id="conektaTokenId">').val(token.id));
+          $form.append($('<input type="hidden" name="conektaTokenId" id="conektaTokenId">').val(token.id))
           $form.append($('<input type="hidden" name="email" id="email">').val(email))
           console.log(email)
           $form.append($('<input type="hidden" name="nombre" id="nombre">').val(nombre))
           console.log(nombre)
-          $form[0].submit(); //Hace submit 
+          
+          $.ajax({
+            type: "POST",
+            url: '/charge',
+            data: $form.serialize(), // serializes the form's elements.
+            success: function(orderid) {
+              if(orderid){            
+                console.log(orderid)
+                alert('LISTO! Tu id de confirmación es: ' + orderid)
+              } else{
+                console.log('not data')
+              }
+            }
+          });
         };
 
         var conektaErrorResponseHandler = function(response) {
@@ -65,20 +77,20 @@ html
           $form.find("button").prop("disabled", false);
         };
 
-          //jQuery para que genere el token después de dar click en submit
+
+        document.querySelector("#card-form").addEventListener("submit", function(evt) {
+          evt.preventDefault()
+          var $form = $("#card-form")
+          $form.find("button").prop("disabled", true);
+          Conekta.Token.create($form, conektaSuccessResponseHandler, conektaErrorResponseHandler);
+        })
+        
+        //actualizar email y nombre
         $(function () {
           $('#email').change(function() {
             email = $('#email').val()
-          });
+          })
           $('#nombre').change(function() {
             nombre = $('#nombre').val()
-          });
-          $("#card-form").submit(function(event) {
-            var $form = $(this);
-            const email = $form[0][0].value
-            // Previene hacer submit más de una vez
-            $form.find("button").prop("disabled", true);
-            Conekta.Token.create($form, conektaSuccessResponseHandler, conektaErrorResponseHandler);
-            return false;
-          });
+          })
         });

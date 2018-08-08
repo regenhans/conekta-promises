@@ -34,7 +34,7 @@ app.post('/charge', (req, res) => {
     .then(function (user) {
       chargeUser(user)
         .then(function (data) {
-          response.render('index', {data: data.id})
+          response.send(data.id)
         })
     })
 })
